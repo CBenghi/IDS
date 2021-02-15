@@ -1,7 +1,11 @@
 # BuildingSmart's Information Delivery Specification Format
 
-BuildingSmart IDS is standard format for interoperable information requirements
+Proposal for BuildingSmart's IDS standard for interoperable information requirements
 in the context of construction projects.
+
+Author: Claudio Benghi
+
+Date: 15th February 2021
 
 ## Principles
 
@@ -11,7 +15,7 @@ the format is arranged so that the specification writing process can be
 easily broken down between the various roles involved in AEC processes.
 
 - [ ] stakeholders will have the opportunity to define the requirements around project-specific model-breakdown criteria
-- [ ] workflow specialists will define the
+- [ ] workflow specialists will define the technical implementation
 
 ### Modular
 
@@ -19,9 +23,6 @@ Version 1.0 of the format is designed to provide immediate interoperable
 features to address the majority of industry's needs with moderate
 implementation challenges, while retaining an extensible data structure for
 robust progressive expansion of use-case coverage.
-
-- [ ] Properties
-- [ ] Quantities
 
 ### Industry driven
 
@@ -33,6 +34,8 @@ from the community rather than the features available in the existing IT toolkit
 Comply with common industrial practice, yet encourage best-practice.
 When dealing with potential conflict between wide-spread behaviours and best practices a solution
 will be sought to enable large adoption but will not force sub-optimal approaches.
+
+Balancing this with preventing 'gold-plating'... e.g. not too many features.
 
 ### Open
 
@@ -64,7 +67,7 @@ This basic form is directly expressing the two fundamental components of a speci
 - **Need**: defines the expected information.
 - **ModelSubSet**: identifies the subset of a model that the _need_ applies to.
 
-As a general rule, each entity in the model that belongs to ModelSubSet needs to comply with the rule
+As a general rule, each entity in the model that belongs to `ModelSubSet` needs to comply with the rule
 set by the need.
 
 In this case the single requirement is interpreted as follows:  
@@ -86,9 +89,13 @@ PropertyType | Attribute | Optional | A constraint on the type of the value of t
 
 ### Progressive requirement definition
 
-A more flexible workflow allows the progressive definition of information requrements by multiple parties and at different time frames in the project.
+AKA Separation of concerns
 
-For example the following initial form, would anticipate some need for elements arbitrarily named `Walls manufactured offsite`.
+A more flexible workflow allows the progressive definition of information requirements by multiple parties and at different time frames in the project.
+
+For example the following initial form, would anticipate the expected information for an element set arbitrarily named `Walls manufactured offsite`.
+
+This allows to separate the conversation about information needs from the technical implementation, that can be discussed later.
 
 ``` xml
 <IDS>
@@ -108,7 +115,9 @@ Part | Type | Required / Default | Notes
 **ModelSubSet** | Node | Required | The node defines the set of entities to be tested
 ref | Attribute | Optional | Defines an arbitrary name of the subset, it is required if there is no node inside the ModelSubSet that identify the entities.
 
-The same concept, expanded with greater guidance to the technical team, could be defined as follows:
+### Internal references
+
+The same concept, expanded with greater guidance to the technical team, could be defined by using internal libraries form `ModelSets` as follows:
 
 ``` xml
 <IDS>
@@ -124,7 +133,7 @@ The same concept, expanded with greater guidance to the technical team, could be
 </IDS>
 ```
 
-In this example, the `ModelSets` node allows the definition of model subsets that can be reused several times in the requirements file.
+In this example, the `ModelSets` node allows the definition of model subsets that can be reused several times in the requirements file, allowing to retain many attributes like `Description` with minimal information repetition.
 
 As presented, the specification is still incomplete (i.e. it lack essential information to be able to know where to place the
 information required), however it's valid and useful for negotiating and developing the technical implementation.
@@ -136,16 +145,29 @@ Eventually, the specifications will be completed with all the implementation det
 ``` xml
 <IDS>
     <ModelSets>
+         <ModelSubSet Name="Everything offsite"
+            Description="Everything for offsite manufacturing need to have the company name" >
+            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
+        </ModelSubSet>
         <ModelSubSet Name="Walls manufactured offsite"
             Description="All walls scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
             <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
             <IfcTypeQuery IfcType="IfcWall" />
+        </ModelSubSet>
+         <ModelSubSet Name="Doors manufactured offsite"
+            Description="All doors scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
+            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
+            <IfcTypeQuery IfcType="IfcDoor" />
         </ModelSubSet>
     </ModelSets>
     <Requirements>
         <Requirement>
             <ModelSubSet ref="Walls manufactured offsite" />
             <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="FireRating" PropertyType="IfcLabel" /></Need>
+        </Requirement>
+        <Requirement>
+            <ModelSubSet ref="Everything offsite" />
+            <Need><HasProperty PropertySetName="Pset_Process" PropertyName="Company" PropertyType="IfcLabel" /></Need>
         </Requirement>
     </Requirements>
 </IDS>
@@ -190,3 +212,20 @@ The `ModelSets` and `Requirements` nodes can be repeated as many times as needed
 ### Model breakdown first
 
 TODO: Groups first, requirements later.
+
+### Multiple formats
+
+The concept of internal references and separation of concerns can further be exploited to isolate the formats chosen for delivery.
+
+In the future, the XML structure could easily be expanded to make the IDS suitable for multiple format standards, retaining the same structure for the `Requirements` node, and all the work done for the association of requirements to model elements.
+
+``` xml
+<ModelSubSet Name="Walls manufactured offsite">
+  <Schema format="IFC4">
+    <... />
+  </Schema>
+  <Schema format="Cobie">
+    <... />
+  </Schema>
+</ModelSubSet>
+```

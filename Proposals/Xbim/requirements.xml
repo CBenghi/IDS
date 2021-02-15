@@ -57,7 +57,7 @@
 		</Requirement>
 		<Requirement>
 			<ModelSubSet>
-				<IfcClassificationReference ItemReference="D7181" />
+				<IfcClassificationReference ClassificationName="Uniclass" ItemReference="D7181" />
 			</ModelSubSet>
 			<Need>
 				<HasProperty PropertyName="GSA BIM Area" ifcType="IfcQuantityArea" />
