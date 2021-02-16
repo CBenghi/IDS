@@ -1,4 +1,6 @@
-<IDS>
+<IDS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ 	xsi:noNamespaceSchemaLocation="requirements.xsd"
+	>
     <!-- Selected types have a guid attribute, but it's always optional -->
     <!-- All your metadata goes here... it's optional, but reassures that files are not misplaced -->
     <Project guid="7806707e-b6e0-448d-aa4b-31161818a6e3">
@@ -12,35 +14,40 @@
     <Repositories>
         <!-- This Repository allows to search needs from a shared library -->
         <!-- guids of library objects allow the access of standard APIs to query for their status (e.g. current, superseeded, obsolete) -->
-        <Repository url="http://specs.xbim.it/" type="Needs" />
+        <Repository url="http://specs.xbim.it/ids/tests" type="Tests" />
+		<Repository url="http://knowledge.buildingsmart.com/ids/ModelSets" type="ModelSubsets" />
     </Repositories>
 	<ModelSets>
-		<ModelSet name="Walls">
-			<IfcTypeQuery IfcType="IfcWall" IncludeSubtypes="false" />
-		</ModelSet>
+		<ModelSubset name="Walls">
+			<IfcTypeQuery ifcType="IfcWall" includeSubtypes="false" />
+		</ModelSubset>
 	</ModelSets>
 	<Tests>
 		<Test name="HaveId">
-			<HasTypeDependentProperty IfcType="IfcWall" PropertySetName="Pset_WallCommon" PropertyName="Reference" />
-			<HasTypeDependentProperty IfcType="IfcSpace" PropertySetName="Pset_SpaceCommon" PropertyName="Reference" />
+			<HasProperty ifcType="IfcWall" propertySetName="Pset_WallCommon" propertyName="Reference" />
+			<HasProperty ifcType="IfcSpace" propertySetName="Pset_SpaceCommon" propertyName="Reference" />
 			<!-- Alternative approach: use HasStandardProperty feature pointing to Reference only -->
 		</Test>
 	</Tests>
 	<Requirements>
 		<Requirement>
-			<ModelSubSet>
-				<IfcTypeQuery IfcType="IfcSpace"/>
-			</ModelSubSet>
+			<ModelSubset>
+				<IfcTypeQuery ifcType="IfcSpace"/>
+			</ModelSubset>
 			<Need ref="HaveId"/>
 		</Requirement>
 		<Requirement guid="4af43f18-0832-4a94-8dea-5498110fd911">
-			<ModelSubSet ref="Walls" guid="a68414ab-d48d-469b-a9d1-83877e383b71" />
+			<ModelSubset ref="Walls" guid="a68414ab-d48d-469b-a9d1-83877e383b71" />
 			<Need ref="HaveId" guid="7ba99a16-b23f-4ed4-8baf-8162632e5260" />
 		</Requirement>
 		<Requirement>
-			<ModelSubSet ref="Walls"/>
+			<Stage>D</Stage> <!-- Case studies that need it: ILS O&E -->
+			<Provider Role="Architect" Member="" />
+			<Consumer Role="MEP" Member="" />
+			<Consumer Role="Struct" Member="" />
+			<ModelSubset ref="Walls"/>
 			<Need>
-				<HasProperty PropertySetName="Pset_WallCommon" PropertyName="IsExternal" PropertyType="IfcBoolean" />
+				<HasProperty propertySetName="Pset_WallCommon" propertyName="IsExternal" propertyType="IfcBoolean" />
 			</Need>
 			<!-- 
 				The following properties are optional
@@ -50,19 +57,15 @@
 				- Consumers can receive smaller models (stripped)
 				- More LOIN properties could fit here
 			 -->
-			<Stage>D</Stage> <!-- Case studies that need it: ILS O&E -->
-			<Provider Role="Architect" Member="" />
-			<Consumer Role="MEP" Member="" />
-			<Consumer Role="Struct" Member="" />
 		</Requirement>
 		<Requirement>
-			<ModelSubSet>
-				<IfcClassificationReference ClassificationName="Uniclass" ItemReference="D7181" />
-			</ModelSubSet>
+			<ModelSubset>
+				<IfcClassificationQuery classificationName="Uniclass" itemReference="D7181" />
+			</ModelSubset>
 			<Need>
-				<HasProperty PropertyName="GSA BIM Area" ifcType="IfcQuantityArea" />
+				<HasProperty propertyName="GSA BIM Area" ifcType="IfcQuantityArea" />
 				<!-- The pset is identified depending on the type at runtime -->
-				<HasStandardProperty Name="PubliclyAccessible" />
+				<HasProperty propertyName="PubliclyAccessible" />
 			</Need>
 		</Requirement>
 	</Requirements>

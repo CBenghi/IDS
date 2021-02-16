@@ -14,7 +14,7 @@ Date: 15th February 2021
 the format is arranged so that the specification writing process can be
 easily broken down between the various roles involved in AEC processes.
 
-- [ ] stakeholders will have the opportunity to define the requirements around project-specific model-breakdown criteria
+- [ ] business stakeholders will have the opportunity to define the requirements around project-specific model-breakdown criteria
 - [ ] workflow specialists will define the technical implementation
 
 ### Modular
@@ -55,7 +55,7 @@ The simplest requirements file has the following form:
 <IDS>
     <Requirements>
         <Requirement>
-            <ModelSubSet><IfcTypeQuery IfcType="IfcWall" IncludeSubtypes="false" /></ModelSubSet>
+            <ModelSubset><IfcTypeQuery IfcType="IfcWall" IncludeSubtypes="false" /></ModelSubset>
             <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="IsExternal" PropertyType="IfcBoolean" /></Need>
         </Requirement>
     </Requirements>
@@ -101,7 +101,7 @@ This allows to separate the conversation about information needs from the techni
 <IDS>
     <Requirements>
         <Requirement>
-            <ModelSubSet ref="Walls manufactured offsite" />
+            <ModelSubset ref="Walls manufactured offsite" />
             <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="FireRating" PropertyType="IfcLabel" /></Need>
         </Requirement>
     </Requirements>
@@ -121,13 +121,13 @@ The same concept, expanded with greater guidance to the technical team, could be
 
 ``` xml
 <IDS>
-    <ModelSets>
-        <ModelSubSet Name="Walls manufactured offsite" Description="Walls will be marked for offsite manufacturing via a property to be defined" />
+     <ModelSets>
+        <ModelSubset name="Walls manufactured offsite" description="Walls will be marked for offsite manufacturing via a property to be defined" />
     </ModelSets>
     <Requirements>
         <Requirement>
-            <ModelSubSet ref="Walls manufactured offsite" />
-            <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="FireRating" PropertyType="IfcLabel" /></Need>
+            <ModelSubset ref="Walls manufactured offsite" />
+            <Need><HasProperty propertySetName="Pset_WallCommon" propertyName="FireRating" propertyType="IfcLabel" /></Need>
         </Requirement>
     </Requirements>
 </IDS>
@@ -144,32 +144,32 @@ Eventually, the specifications will be completed with all the implementation det
 
 ``` xml
 <IDS>
-    <ModelSets>
-         <ModelSubSet Name="Everything offsite"
-            Description="Everything for offsite manufacturing need to have the company name" >
-            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
-        </ModelSubSet>
-        <ModelSubSet Name="Walls manufactured offsite"
-            Description="All walls scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
-            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
-            <IfcTypeQuery IfcType="IfcWall" />
-        </ModelSubSet>
-         <ModelSubSet Name="Doors manufactured offsite"
-            Description="All doors scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
-            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
-            <IfcTypeQuery IfcType="IfcDoor" />
-        </ModelSubSet>
-    </ModelSets>
-    <Requirements>
-        <Requirement>
-            <ModelSubSet ref="Walls manufactured offsite" />
-            <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="FireRating" PropertyType="IfcLabel" /></Need>
-        </Requirement>
-        <Requirement>
-            <ModelSubSet ref="Everything offsite" />
-            <Need><HasProperty PropertySetName="Pset_Process" PropertyName="Company" PropertyType="IfcLabel" /></Need>
-        </Requirement>
-    </Requirements>
+     <ModelSets>
+        <ModelSubset name="Everything offsite"
+           description="Everything for offsite manufacturing need to have the company name" >
+           <IfcPropertyQuery propertySetName="Pset_Manufacturing" propertyName="Location" propertyValue="Offsite" />
+       </ModelSubset>
+       <ModelSubset name="Walls manufactured offsite"
+           description="All walls scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
+           <IfcPropertyQuery propertySetName="Pset_Manufacturing" propertyName="Location" propertyValue="Offsite" />
+           <IfcTypeQuery ifcType="IfcWall" />
+       </ModelSubset>
+        <ModelSubset name="Doors manufactured offsite"
+           description="All doors scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
+           <IfcPropertyQuery propertySetName="Pset_Manufacturing" propertyName="Location" propertyValue="Offsite" />
+           <IfcTypeQuery ifcType="IfcDoor" />
+       </ModelSubset>
+   </ModelSets>
+   <Requirements>
+       <Requirement>
+           <ModelSubset ref="Walls manufactured offsite" />
+           <Need><HasProperty propertySetName="Pset_WallCommon" propertyName="FireRating" propertyType="IfcLabel" /></Need>
+       </Requirement>
+       <Requirement>
+           <ModelSubset ref="Everything offsite" />
+           <Need><HasProperty propertySetName="Pset_Process" propertyName="Company" propertyType="IfcLabel" /></Need>
+       </Requirement>
+   </Requirements>
 </IDS>
 ```
 
@@ -187,23 +187,27 @@ The `ModelSets` and `Requirements` nodes can be repeated as many times as needed
 ``` xml
 <IDS>
     <ModelSets>
-        <ModelSubSet Name="Walls manufactured offsite"
-            Description="All walls scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
-            <PropertyQuery PropertySetName="Pset_Manufacturing" PropertyName="Location" PropertyType="IfcLabel" StringValue="Offsite" />
-        </ModelSubSet>
+        <ModelSubset name="Walls manufactured offsite"
+            description="All walls scheduled for offsite manufacturing need to be identified via the Pset_Manufacturing.Location property set to Offsite" >
+            <IfcPropertyQuery propertySetName="Pset_Manufacturing" propertyName="Location" propertyValue="Offsite" />
+        </ModelSubset>
     </ModelSets>
-    <Requirements Stage="4">
+    <Requirements>
+        <!-- We are reusing the requirements node if we want to inherit stages and other information for the child requirements -->     
+        <Stage>4</Stage>    
         <Requirement>
-            <ModelSubSet ref="Walls manufactured offsite" />
-            <Need><HasProperty PropertySetName="Pset_WallCommon" PropertyName="FireRating" PropertyType="IfcLabel" /></Need>
+            <ModelSubset ref="Walls manufactured offsite" />
+            <Need><HasProperty propertySetName="Pset_WallCommon" propertyName="FireRating" propertyType="IfcLabel" /></Need>
         </Requirement>
-        <!-- More requirements for stage 4 go here -->
+          
     </Requirements>
-    <Requirements Stage="5">
+    <Requirements>
+        <Stage>5</Stage>
+        <Stage>6</Stage>
         <Requirement>
-            <!-- Pointing to the previously defined ModelSubSet simplifies the creation of the requirements. -->
-            <ModelSubSet ref="Walls manufactured offsite" />
-            <Need><HasDocumentReference DocumentName="FireCertificate" DocumentStatus="FINAL" RequiredAttributes="Location,ElectronicFormat,ValidUntil" /></Need>
+            <!-- Pointing to the previously defined ModelSubSet simplifies the creation of each requirement. -->
+            <ModelSubset ref="Walls manufactured offsite" />
+            <Need><HasDocumentReference documentName="FireCertificate" documentStatus="FINAL" requiredAttributes="Location,ElectronicFormat,ValidUntil" /></Need>
         </Requirement>
     </Requirements>
 </IDS>
