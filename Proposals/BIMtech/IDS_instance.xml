@@ -11,7 +11,8 @@
             <propertySets>
                 <propertySet name="Door Properties" refToClassification="Classification001">
                     <properties>
-                        <property name="Width" unit="cm" refToClassification="http://bsdd.buildingsmart.org/#concept/details/0C$q01fAv9ZOabWvo68xm6">
+                        <property name="Width" refToClassification="http://bsdd.buildingsmart.org/#concept/details/0C$q01fAv9ZOabWvo68xm6">
+                            <unit ucumCode="cm"/>
                             <dataType type="BOOLEAN"/>
                         </property>
                     </properties>
@@ -28,10 +29,12 @@
             <propertySets>
                 <propertySet name="FireCodeProperties" refToClassification="Classification001">
                     <properties>
-                        <property name="FireResistanceRating" unit="NONE" refToClassification="http://bsdd.buildingsmart.org/#concept/details/07RqSAS5b3xgKYraRjwwZP">
+                        <property name="FireResistanceRating" refToClassification="http://bsdd.buildingsmart.org/#concept/details/07RqSAS5b3xgKYraRjwwZP">
+                            <unit/>
                             <dataType type="BOOLEAN"/>
                         </property>
-                        <property name="IsCombustible" unit="NONE" refToClassification="http://bsdd.buildingsmart.org/#concept/details/08fiQpHdbDr8e3q81XFwRb">
+                        <property name="IsCombustible" refToClassification="http://bsdd.buildingsmart.org/#concept/details/08fiQpHdbDr8e3q81XFwRb">
+                            <unit/>
                             <dataType type="BOOLEAN"/>
                         </property>
                     </properties>

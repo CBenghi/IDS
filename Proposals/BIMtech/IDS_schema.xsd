@@ -22,7 +22,7 @@
   <xs:complexType name="specificationPerObjectType">
     <xs:sequence>
       <xs:element name="objectType" type="objectType" minOccurs="0"/>
-      <xs:element name="alphanumericInformationSpecification" type="alphanumericInformationSpecification" minOccurs="0"/>
+      <xs:element name="alphanumericInformationSpecification" type="alphanumericInformationSpecification" minOccurs="1"/>
     </xs:sequence>
     <xs:attribute name="globalId" type="xs:string"/>
   </xs:complexType>
@@ -46,7 +46,13 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="properties" type="property" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="properties" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="property" type="property" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
@@ -55,7 +61,7 @@
       <xs:element name="properties" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="property" type="property" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="property" type="property" minOccurs="1" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -66,11 +72,16 @@
 
   <xs:complexType name="property">
     <xs:sequence>
+      <xs:element name="unit" type="unit" minOccurs="0"/>
       <xs:element name="dataType" type="dataType" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string"/>
-    <xs:attribute name="unit" type="xs:string"/>
     <xs:attribute name="refToClassification" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="unit">
+    <xs:sequence/>
+    <xs:attribute name="ucumCode" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="dataType">
