@@ -2,22 +2,17 @@ using Nuke.Common;
 using Nuke.Common.Tooling;
 using System;
 using System.IO;
+using System.Reflection.Metadata;
 
 class Build : NukeBuild
 {
-    /// Support plugins are available for:
-    ///   - JetBrains ReSharper        https://nuke.build/resharper
-    ///   - JetBrains Rider            https://nuke.build/rider
-    ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
-    ///   - Microsoft VSCode           https://nuke.build/vscode
+	public static int Main() => Execute<Build>(x => x.AuditAllIdsFiles);
 
-    public static int Main() => Execute<Build>(x => x.AuditAllIdsFiles);
+	[Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
+	private readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    private readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
-
-    [PackageExecutable("ids-tool.CommandLine", "tools/net6.0/ids-tool.dll")] 
-    private Tool IdsTool;
+	[PackageExecutable("ids-tool.CommandLine", "tools/net6.0/ids-tool.dll")]
+	private Tool IdsTool;
 
 	[PackageExecutable("dotnet-xscgen", "tools/net6.0/any/xscgen.dll")]
 	private Tool SchemaTool;
@@ -33,9 +28,54 @@ class Build : NukeBuild
 		{
 			// development samples
 			var schemaFile = RootDirectory / "Development" / "ids.xsd";
-			var arguments = $"\"{schemaFile}\"";
+			var schemaContent = File.ReadAllText(schemaFile);
+
+			// cardinality fix
+			schemaContent = schemaContent.Replace("</xs:schema>", $"{cardinalityHack}\r\n</xs:schema>");
+			schemaContent = schemaContent.Replace("""<xs:attributeGroup ref="xs:occurs"/>""", """<xs:attributeGroup ref="ids:minmaxAttributesGroup"/>""");
+
+			// fixes for restriction
+			schemaContent = schemaContent.Replace("xs:element ref=\"xs:restriction\"", $"xs:element name=\"restriction\" type=\"xs:int\"");
+			foreach (var removeString in RemoveSchemas)
+				schemaContent = schemaContent.Replace(removeString, "");
+
+			var hackedFileName = Path.ChangeExtension(schemaFile, ".ren.xsd");
+			using (var fixedSchemaFile = File.CreateText(hackedFileName))
+			{
+				fixedSchemaFile.Write(schemaContent);
+			}
+			var arguments = $"\"{hackedFileName}\" -v --output=\"C:\\Data\\_tmp\\schema\"";
 			SchemaTool(arguments);
+			File.Delete(hackedFileName);
 		});
+
+	string[] RemoveSchemas = new[]
+	{
+		"""<xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="http://www.w3.org/2001/XMLSchema.xsd"/>""",
+		"""<xs:import namespace="http://www.w3.org/2001/XMLSchema-instance" schemaLocation="http://www.w3.org/2001/XMLSchema-instance"/>""",
+	};
+
+
+	const string cardinalityHack = """
+			<!--  cardinalityHack to remove xs elements -->
+			<xs:simpleType name="allNNI">
+				<xs:annotation>
+					<xs:documentation>for maxOccurs</xs:documentation>
+				</xs:annotation>
+				<xs:union memberTypes="xs:nonNegativeInteger">
+					<xs:simpleType>
+						<xs:restriction base="xs:NMTOKEN">
+							<xs:enumeration value="unbounded"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:union>
+			</xs:simpleType>
+
+			<xs:attributeGroup name="minmaxAttributesGroup">
+				<xs:attribute name="minOccurs" type="xs:nonNegativeInteger" default="1"/>
+				<xs:attribute name="maxOccurs" type="ids:allNNI" default="1"/>
+			</xs:attributeGroup>
+		""";
 
 
 	private string IdsToolPath => Path.GetDirectoryName(ToolPathResolver.GetPackageExecutable("ids-tool.CommandLine", "tools/net6.0/ids-tool.dll"));
@@ -46,47 +86,45 @@ class Build : NukeBuild
 	/// The schema is loaded from the repository to ensure internal coherence.
 	/// </summary>
 	Target AuditDevelopment => _ => _
-        .AssuredAfterFailure()
-        .Executes(() =>
-        {
-            // development samples
-            var schemaFile = RootDirectory / "Development" / "ids.xsd";
-            var inputFolder = RootDirectory / "Development";
-            var arguments = $"audit \"{inputFolder}\" -x \"{schemaFile}\"";
-            IdsTool(arguments, workingDirectory: IdsToolPath);
-        });
+		.AssuredAfterFailure()
+		.Executes(() =>
+		{
+			// development samples
+			var schemaFile = RootDirectory / "Development" / "ids.xsd";
+			var inputFolder = RootDirectory / "Development";
+			var arguments = $"audit \"{inputFolder}\" -x \"{schemaFile}\"";
+			IdsTool(arguments, workingDirectory: IdsToolPath);
+		});
 
 	/// <summary>
 	/// Audits the validity of Documentation/testcases folder in the repository, using ids-tool.
-    /// The tool is deployed by the annotated <see cref="IdsTool"/>.
-    /// The schema is loaded from the repository to ensure internal coherence.
+	/// The tool is deployed by the annotated <see cref="IdsTool"/>.
+	/// The schema is loaded from the repository to ensure internal coherence.
 	/// </summary>
 	Target AuditDocTestCases => _ => _
-        .AssuredAfterFailure()
-        .Executes(() =>
-        {
-            // we are omitting tests on the content of the Documentation/testcases folder, 
-            // because they include IDSs that intentionally contain errors
-            //
-            // todo: once stable, this could be improved to omit contens based on failure patter name
-            // todo: once stable, constrained on expected auditing failures on the "fail-" cases should be added
-            var schemaFile = RootDirectory / "Development" / "ids.xsd";
-            var inputFolder = RootDirectory / "Documentation" / "testcases";
-            var arguments = $"audit \"{inputFolder}\" --omitContent -x \"{schemaFile}\"";
-            IdsTool(arguments, workingDirectory: IdsToolPath);
-        });
+		.AssuredAfterFailure()
+		.Executes(() =>
+		{
+			// we are omitting tests on the content of the Documentation/testcases folder, 
+			// because they include IDSs that intentionally contain errors
+			//
+			// todo: once stable, this could be improved to omit contens based on failure patter name
+			// todo: once stable, constrained on expected auditing failures on the "fail-" cases should be added
+			var schemaFile = RootDirectory / "Development" / "ids.xsd";
+			var inputFolder = RootDirectory / "Documentation" / "testcases";
+			var arguments = $"audit \"{inputFolder}\" --omitContent -x \"{schemaFile}\"";
+			IdsTool(arguments, workingDirectory: IdsToolPath);
+		});
 
-    /// <summary>
-    /// Perform all quality assurance of published IDS files; this is the one invoked by default
-    /// </summary>
-    Target AuditAllIdsFiles => _ => _
-        .AssuredAfterFailure()
-        .DependsOn(AuditDocTestCases)
-        .DependsOn(AuditDevelopment)
-        .Executes(() =>
-        {
-            Console.WriteLine("This is an utility target that launches all available IDS auditing targets.");
-        });
-
-
+	/// <summary>
+	/// Perform all quality assurance of published IDS files; this is the one invoked by default
+	/// </summary>
+	Target AuditAllIdsFiles => _ => _
+		.AssuredAfterFailure()
+		.DependsOn(AuditDocTestCases)
+		.DependsOn(AuditDevelopment)
+		.Executes(() =>
+		{
+			Console.WriteLine("This is an utility target that launches all available IDS auditing targets.");
+		});
 }
