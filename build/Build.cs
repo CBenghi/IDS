@@ -1,5 +1,8 @@
 using Nuke.Common;
+using Nuke.Common.IO;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.DotNet;
+using Octokit;
 using System;
 using System.IO;
 using System.Reflection.Metadata;
@@ -17,19 +20,23 @@ class Build : NukeBuild
 	[PackageExecutable("dotnet-xscgen", "tools/net6.0/any/xscgen.dll")]
 	private Tool SchemaTool;
 
+	static Nuke.Common.IO.AbsolutePath SchemaProjectFolder { get; } =  RootDirectory / "SchemaProject";
+	static Nuke.Common.IO.AbsolutePath SchemaProjectFileName  { get; } =  SchemaProjectFolder / "SchemaProject.csproj";
+
 	/// <summary>
 	/// Audits the validity of development folder in the repository, using ids-tool.
 	/// The tool is deployed by the annotated <see cref="IdsTool"/>.
 	/// The schema is loaded from the repository to ensure internal coherence.
 	/// </summary>
-	Target MakeClasses => _ => _
+	Target CleanSchemaProject => _ => _
 		.AssuredAfterFailure()
 		.Executes(() =>
 		{
+			// ======= Preparing IDS Schema
+
 			// development samples
 			var schemaFile = RootDirectory / "Development" / "ids.xsd";
 			var schemaContent = File.ReadAllText(schemaFile);
-
 			// cardinality fix
 			schemaContent = schemaContent.Replace("</xs:schema>", $"{cardinalityHack}\r\n</xs:schema>");
 			schemaContent = schemaContent.Replace("""<xs:attributeGroup ref="xs:occurs"/>""", """<xs:attributeGroup ref="ids:minmaxAttributesGroup"/>""");
@@ -44,9 +51,10 @@ class Build : NukeBuild
 			{
 				fixedSchemaFile.Write(schemaContent);
 			}
-			var arguments = $"\"{hackedFileName}\" -v --output=\"C:\\Data\\_tmp\\schema\"";
+			var arguments = $"\"{hackedFileName}\" --verbose --netCore --order -nullable --output=\"{SchemaProjectFolder}\"";
 			SchemaTool(arguments);
 			File.Delete(hackedFileName);
+
 		});
 
 	string[] RemoveSchemas = new[]
@@ -76,6 +84,15 @@ class Build : NukeBuild
 				<xs:attribute name="maxOccurs" type="ids:allNNI" default="1"/>
 			</xs:attributeGroup>
 		""";
+
+	Target CompileSchemaProject => _ => _
+		.DependsOn(CleanSchemaProject)
+		.Executes(() =>
+		{
+			DotNetTasks.DotNetBuild(s => s
+				.SetProjectFile(SchemaProjectFileName).SetConfiguration("Release")
+			);
+		});
 
 
 	private string IdsToolPath => Path.GetDirectoryName(ToolPathResolver.GetPackageExecutable("ids-tool.CommandLine", "tools/net6.0/ids-tool.dll"));
