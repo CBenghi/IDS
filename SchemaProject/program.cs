@@ -34,29 +34,28 @@ class Program
 		RequirementsTypeProperty rqp = new RequirementsTypeProperty();
 		rqp.PropertySet = p.PropertySet;
 		rqp.Name = p.Name;
-		rqp.MaxOccurs = "unbounded";
+		rqp.Cardinality = ConditionalCardinality.Required;
 		spec.Requirements = new SpecificationTypeRequirements();
 		spec.Requirements.Property.Add(rqp);
 	}
 
 	private static Ids.SpecificationType CreateTypeSpec(string typeName, params string[] schemas)
 	{
-		var ret = new Ids.SpecificationType();
+		var spec = new Ids.SpecificationType();
 		if (schemas.Any()) 
 		{
 			foreach (var sch in schemas)
 			{
-				ret.IfcVersion.Add(sch);
+				spec.IfcVersion.Add(sch);
 			}
 		}
 		else
 		{
-			ret.IfcVersion.Add("IFC4");
+			spec.IfcVersion.Add("IFC4");
 		}
-		ret.Applicability = new ApplicabilityType();
-		ret.Applicability.Entity = new Ids.EntityType() { Name = SimpleValueFromString(typeName) };
-		ret.MaxOccurs = "unbounded";
-		return ret;
+		spec.Applicability = ApplicabilityType.CreateApplicabilityType(ApplicabilityType.ApplicabilityCardinality.Required);
+		spec.Applicability.Entity = new Ids.EntityType() { Name = SimpleValueFromString(typeName) };
+		return spec;
 	}
 
 	private static IdsValue SimpleValueFromString(string value)

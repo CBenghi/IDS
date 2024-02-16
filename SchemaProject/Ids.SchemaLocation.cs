@@ -6,6 +6,6 @@ namespace Ids
 	public partial class Ids
 	{
 		[XmlAttributeAttribute("schemaLocation", Namespace = "http://www.w3.org/2001/XMLSchema-instance")]
-		public string xsiSchemaLocation = "http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/0.9.6/ids.xsd";
+		public string xsiSchemaLocation = "http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/0.9.7/ids.xsd";
 	}
 }
