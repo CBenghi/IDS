@@ -5,7 +5,10 @@ class Program
 {
 	static public void Main()
 	{
-		Console.WriteLine("Hello IDS!");
+        // this project depends on the execution of one of the repository targets defined in the /Build folder
+        // If this project does not compile, start a terminal in the root folder and execute the `./build CompileSchemaProject` command.
+		//
+        Console.WriteLine("Hello IDS!");
 		CreateIds("some.ids");
 	}
 

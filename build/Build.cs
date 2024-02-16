@@ -24,8 +24,8 @@ class Build : NukeBuild
 	static Nuke.Common.IO.AbsolutePath SchemaProjectFileName  { get; } =  SchemaProjectFolder / "SchemaProject.csproj";
 
 	/// <summary>
-	/// Audits the validity of development folder in the repository, using ids-tool.
-	/// The tool is deployed by the annotated <see cref="IdsTool"/>.
+	/// Produces c# IDS schema files starting from the XSD format.
+	/// The tool is deployed by the annotated <see cref="SchemaTool"/>.
 	/// The schema is loaded from the repository to ensure internal coherence.
 	/// </summary>
 	Target CleanSchemaProject => _ => _
