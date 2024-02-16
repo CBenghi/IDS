@@ -37,21 +37,31 @@ class Build : NukeBuild
 			// development samples
 			var schemaFile = RootDirectory / "Development" / "ids.xsd";
 			var schemaContent = File.ReadAllText(schemaFile);
-			// cardinality fix
-			schemaContent = schemaContent.Replace("</xs:schema>", $"{cardinalityHack}\r\n</xs:schema>");
-			schemaContent = schemaContent.Replace("""<xs:attributeGroup ref="xs:occurs"/>""", """<xs:attributeGroup ref="ids:minmaxAttributesGroup"/>""");
+			
+			// min/max cardinality hack
+			// we replace the xs version with our own added at the bottom of the schema
+			//
+			schemaContent = schemaContent.Replace("</xs:schema>", $"{cardinalityHack}\r\n</xs:schema>"); // add our own implementation
+			schemaContent = schemaContent.Replace( // point to our implementation instead of xs
+				"""<xs:attributeGroup ref="xs:occurs"/>""", 
+				"""<xs:attributeGroup ref="ids:minmaxAttributesGroup"/>"""
+				);
 
-			// fixes for restriction
-			schemaContent = schemaContent.Replace("xs:element ref=\"xs:restriction\"", $"xs:element name=\"restriction\" type=\"xs:int\"");
-			foreach (var removeString in RemoveSchemas)
-				schemaContent = schemaContent.Replace(removeString, "");
+			// replace xs:restriction type with xs:int type to allow XSD processing
+			//
+			schemaContent = schemaContent.Replace(
+				"xs:element ref=\"xs:restriction\"", 
+				"xs:element name=\"restriction\" type=\"xs:int\""
+				);
+			foreach (var schemaString in RemoveSchemas)
+				schemaContent = schemaContent.Replace(schemaString, "");
 
 			var hackedFileName = Path.ChangeExtension(schemaFile, ".ren.xsd");
 			using (var fixedSchemaFile = File.CreateText(hackedFileName))
 			{
 				fixedSchemaFile.Write(schemaContent);
 			}
-			var arguments = $"\"{hackedFileName}\" --verbose --netCore --order -nullable --output=\"{SchemaProjectFolder}\"";
+			var arguments = $"\"{hackedFileName}\" --verbose --netCore --order --nullable --nullableReferenceAttributes --output=\"{SchemaProjectFolder}\"";
 			SchemaTool(arguments);
 			File.Delete(hackedFileName);
 

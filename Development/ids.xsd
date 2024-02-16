@@ -154,7 +154,6 @@
 				<xs:complexType>
 					<xs:complexContent>
 						<xs:extension base="ids:attributeType">
-							<xs:attributeGroup ref="xs:occurs"/>
 							<xs:attribute name="cardinality" type="ids:conditionalCardinality" use="optional" default="required"/>
 							<xs:attribute name="instructions" type="xs:string" use="optional">
 								<xs:annotation>
