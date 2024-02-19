@@ -34,6 +34,8 @@ namespace SchemaProject.DocAutomation
         public IdsScript(Ids.Ids sourceIds)
         {
             Title = sourceIds.Info.Title ?? "Untitled";
+
+
             var firstSpec = sourceIds.Specifications.FirstOrDefault();
             if (firstSpec is null) 
                 return;
