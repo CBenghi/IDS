@@ -17,7 +17,7 @@
         <partOf relation="IFCRELNESTS">
           <entity>
             <name>
-              <xs:restriction>
+              <xs:restriction base="xs:string">
                 <xs:pattern value=".*" />
               </xs:restriction>
             </name>

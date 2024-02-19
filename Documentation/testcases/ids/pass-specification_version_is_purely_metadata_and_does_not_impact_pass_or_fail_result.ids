@@ -5,7 +5,7 @@
     <description>Generated via code automation in the Ids Repository on github.</description>
   </info>
   <specifications>
-    <specification name="Name" ifcVersion="IFC2X3">
+    <specification name="Specification version is purely metadata and does not impact pass or fail result" ifcVersion="IFC2X3">
       <applicability minOccurs="0" maxOccurs="unbounded">
         <entity>
           <name>

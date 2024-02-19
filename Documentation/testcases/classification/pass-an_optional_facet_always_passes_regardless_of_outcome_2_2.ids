@@ -16,7 +16,7 @@
       <requirements>
         <classification cardinality="optional">
           <system>
-            <xs:restriction>
+            <xs:restriction base="xs:string">
               <xs:pattern value=".*" />
             </xs:restriction>
           </system>

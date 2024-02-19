@@ -16,7 +16,7 @@
       <requirements>
         <attribute>
           <name>
-            <simpleValue>Rabbit</simpleValue>
+            <simpleValue>ActingRole</simpleValue>
           </name>
         </attribute>
       </requirements>

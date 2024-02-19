@@ -617,7 +617,9 @@ Classification: ''Foobar'',''1''
 
 ### Non-rooted resources that have external classification references should also pass
 
-``` ids classification/pass-non_rooted_resources_that_have_external_classification_references_should_also_pass.ids
+TODO: This is suspended until the auditing tool is completed.
+
+``` suspended ids classification/pass-non_rooted_resources_that_have_external_classification_references_should_also_pass.ids
 Non-rooted resources that have external classification references should also pass
 Entity: ''IFCMATERIAL''
 Requirements:
@@ -809,7 +811,9 @@ Entity: ''IFCWALLTYPE'',''WALDO''
 
 ### A predefined type may specify a user-defined object type
 
-``` ids entity/pass-a_predefined_type_may_specify_a_user_defined_object_type.ids
+This custom subType should be allowed, if custom. 
+
+``` suspended ids entity/pass-a_predefined_type_may_specify_a_user_defined_object_type.ids
 A predefined type may specify a user-defined object type
 Entity: ''IFCWALL''
 Requirements:
@@ -818,8 +822,11 @@ Entity: ''IFCWALL'',''WALDO''
 
 ### A predefined type may specify a user-defined process type
 
+TODO: Suspended
+
 ``` ids entity/pass-a_predefined_type_may_specify_a_user_defined_process_type.ids
 A predefined type may specify a user-defined process type
+IFC4
 Entity: ''IFCTASKTYPE''
 Requirements:
 Entity: ''IFCTASKTYPE'',''TASKY''
@@ -827,7 +834,9 @@ Entity: ''IFCTASKTYPE'',''TASKY''
 
 ### A predefined type must always specify a meaningful type, not USERDEFINED itself
 
-``` ids entity/fail-a_predefined_type_must_always_specify_a_meaningful_type__not_userdefined_itself.ids
+Suspended TODO: the group agreed to allow userdefined as an option too.
+
+``` Suspended ids entity/fail-a_predefined_type_must_always_specify_a_meaningful_type__not_userdefined_itself.ids
 A predefined type must always specify a meaningful type, not USERDEFINED itself
 Entity: ''IFCWALL''
 Requirements:

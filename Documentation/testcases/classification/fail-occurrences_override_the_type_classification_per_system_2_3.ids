@@ -19,7 +19,7 @@
             <simpleValue>22</simpleValue>
           </value>
           <system>
-            <xs:restriction>
+            <xs:restriction base="xs:string">
               <xs:pattern value=".*" />
             </xs:restriction>
           </system>
